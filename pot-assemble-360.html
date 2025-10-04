@@ -1,105 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>360 Clay Pot - Reassembling</title>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background-color: #f3f0ea;
-      }
-      canvas {
-        display: block;
-      }
-      h1 {
-        position: absolute;
-        top: 10px;
-        left: 20px;
-        color: #5c4a36;
-        font-family: sans-serif;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>🪔 Clay Pot Reassembling</h1>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.156.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.156.0/examples/js/controls/OrbitControls.min.js"></script>
-    <script>
-      // Scene setup
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+<head>
+  <meta charset="utf-8">
+  <title>3D Clay Pot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      background-color: #1a1512;
+      color: #f5e6d0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    #label {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      color: #f5e6d0;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="label">🪔 3D Clay Pot — drag to rotate</div>
 
-      // Lights
-      const light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(2, 2, 3);
-      scene.add(light);
-      scene.add(new THREE.AmbientLight(0x888888));
-
-      // Pot geometry (approximate pot shape)
-      const potGeometry = new THREE.LatheGeometry(
-        [
-          new THREE.Vector2(0, 0),
-          new THREE.Vector2(1, 0),
-          new THREE.Vector2(1.2, 0.5),
-          new THREE.Vector2(0.8, 1.2),
-          new THREE.Vector2(0.4, 1.5),
-          new THREE.Vector2(0, 1.6)
-        ],
-        32
-      );
-
-      const clayMaterial = new THREE.MeshStandardMaterial({
-        color: 0xc49b6c,
-        roughness: 0.9,
-        metalness: 0.1
-      });
-
-      // Create 4 pot fragments
-      const fragments = [];
-      for (let i = 0; i < 4; i++) {
-        const fragment = new THREE.Mesh(potGeometry, clayMaterial);
-        fragment.rotation.y = (i * Math.PI) / 2;
-        fragment.position.x = Math.sin(i * Math.PI / 2) * 0.2;
-        fragment.position.z = Math.cos(i * Math.PI / 2) * 0.2;
-        scene.add(fragment);
-        fragments.push(fragment);
-      }
-
-      camera.position.z = 5;
-
-      // Controls
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-
-      // Animation
-      let t = 0;
-      function animate() {
-        requestAnimationFrame(animate);
-        t += 0.01;
-
-        // Animate fragments to "reassemble"
-        for (let i = 0; i < fragments.length; i++) {
-          const frag = fragments[i];
-          const offset = Math.sin(t + i * Math.PI / 2) * 0.5;
-          frag.position.x = Math.sin(i * Math.PI / 2) * offset;
-          frag.position.z = Math.cos(i * Math.PI / 2) * offset;
-        }
-
-        controls.update();
-        renderer.render(scene, camera);
-      }
-
-      animate();
-
-      window.addEventListener("resize", () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
-    </script>
-  </body>
-</html>
+  <!-- Three.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/controls/OrbitControls.min
