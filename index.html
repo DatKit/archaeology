@@ -1,10 +1,147 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>My Simple Page</title>
-</head>
-<body>
-  <h1>Hello, world!</h1>
-  <p>This is a simple HTML page.</p>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Greek Pot — Tilt Neon</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Tilt+Neon&display=swap");
+
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #120e0a;
+      }
+
+      h1 {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        color: #ff7f50;
+        font-family: "Tilt Neon", sans-serif;
+        font-size: 2em;
+        text-shadow: 0 0 8px #ff7f50, 0 0 18px #ff4500;
+        z-index: 10;
+      }
+
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tilt Neon</h1>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/controls/OrbitControls.min.js"></script>
+
+    <script>
+      // --- Scene setup ---
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // --- Lighting ---
+      const light = new THREE.DirectionalLight(0xffffff, 1.2);
+      light.position.set(2, 3, 4);
+      scene.add(light);
+      scene.add(new THREE.AmbientLight(0x403020));
+
+      // --- Pot geometry (Greek-style silhouette) ---
+      const points = [
+        new THREE.Vector2(0.0, 0.0),
+        new THREE.Vector2(0.8, 0.0),
+        new THREE.Vector2(1.2, 0.4),
+        new THREE.Vector2(1.35, 1.0),
+        new THREE.Vector2(1.1, 1.5),
+        new THREE.Vector2(0.8, 1.9),
+        new THREE.Vector2(0.5, 2.2),
+        new THREE.Vector2(0.2, 2.4),
+        new THREE.Vector2(0.0, 2.4)
+      ];
+      const potGeometry = new THREE.LatheGeometry(points, 64);
+
+      // --- Clay texture (painted pattern using canvas) ---
+      const texCanvas = document.createElement("canvas");
+      texCanvas.width = 512;
+      texCanvas.height = 256;
+      const ctx = texCanvas.getContext("2d");
+
+      // base color
+      ctx.fillStyle = "#8b5a2b";
+      ctx.fillRect(0, 0, texCanvas.width, texCanvas.height);
+
+      // painted black bands
+      ctx.fillStyle = "#1a1410";
+      for (let y = 20; y < texCanvas.height; y += 40) {
+        ctx.fillRect(0, y, texCanvas.width, 8);
+      }
+
+      // simple Greek meander pattern
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 3;
+      for (let x = 0; x < texCanvas.width; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 220);
+        ctx.lineTo(x + 20, 200);
+        ctx.lineTo(x + 40, 220);
+        ctx.stroke();
+      }
+
+      const clayTexture = new THREE.CanvasTexture(texCanvas);
+      clayTexture.wrapS = clayTexture.wrapT = THREE.RepeatWrapping;
+
+      const clayMaterial = new THREE.MeshStandardMaterial({
+        map: clayTexture,
+        roughness: 0.85,
+        metalness: 0.05
+      });
+
+      // --- Make 4 broken fragments ---
+      const fragments = [];
+      for (let i = 0; i < 4; i++) {
+        const frag = new THREE.Mesh(potGeometry, clayMaterial);
+        const angle = (Math.PI / 2) * i;
+        frag.rotation.y = angle;
+        frag.position.x = Math.sin(angle) * 0.3;
+        frag.position.z = Math.cos(angle) * 0.3;
+        frag.rotation.x += (Math.random() - 0.5) * 0.1;
+        frag.rotation.z += (Math.random() - 0.5) * 0.1;
+        scene.add(frag);
+        fragments.push(frag);
+      }
+
+      camera.position.set(0, 1.5, 5);
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.enableZoom = true;
+
+      // --- Animation ---
+      let t = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        t += 0.01;
+
+        fragments.forEach((frag, i) => {
+          const phase = i * (Math.PI / 2);
+          const dist = 0.8 + Math.sin(t + phase) * 0.4;
+          frag.position.x = Math.sin(phase) * dist;
+          frag.position.z = Math.cos(phase) * dist;
+        });
+
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // --- Handle resize ---
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+  </body>
 </html>
